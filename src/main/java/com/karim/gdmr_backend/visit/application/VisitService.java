@@ -27,6 +27,7 @@ import org.springframework.transaction.annotation.Transactional;
 import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
 import java.util.List;
+import java.util.Locale;
 import java.util.Map;
 import java.util.Set;
 
@@ -47,7 +48,11 @@ public class VisitService implements
         SubmitVisitReportUseCase,
         ListVisitsUseCase {
 
-    private static final DateTimeFormatter DISPLAY_FORMAT = DateTimeFormatter.ofPattern("MMM d, yyyy 'at' HH:mm");
+    // Explicit Locale avoids relying on the JVM's default locale for month names — minimal
+    // container base images (e.g. Azure's Linux JRE) don't always ship full locale data, which
+    // otherwise throws at runtime the first time this formats a real (non-null) date.
+    private static final DateTimeFormatter DISPLAY_FORMAT =
+            DateTimeFormatter.ofPattern("MMM d, yyyy 'at' HH:mm", Locale.ENGLISH);
 
     private static final Map<VisitStatus, Set<VisitStatus>> ALLOWED_TRANSITIONS = Map.of(
             VisitStatus.REQUESTED, Set.of(VisitStatus.PROPOSED),
