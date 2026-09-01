@@ -16,7 +16,7 @@ import org.springframework.stereotype.Service;
 
 @Service
 @Transactional
-public class EmployeeService implements GetMyProfileUseCase, UpsertEmployeeUseCase, ListEmployeesUseCase, GetEmployeeByIdUseCase, GetEmployeeIdByUserIdUseCase {
+public class EmployeeService implements GetMyProfileUseCase, UpsertEmployeeUseCase, ListEmployeesUseCase, GetEmployeeByIdUseCase, GetEmployeeIdByUserIdUseCase, DeleteEmployeeByUserIdUseCase {
 
     private final EmployeeRepositoryPort employeeRepository;
     private final UserRepositoryPort userRepository;
@@ -71,5 +71,10 @@ public class EmployeeService implements GetMyProfileUseCase, UpsertEmployeeUseCa
         return employeeRepository.findByUserId(userId)
                 .orElseThrow(() -> new EmployeeNotFoundException(userId))
                 .getId();
+    }
+
+    @Override
+    public void deleteByUserId(Long userId) {
+        employeeRepository.deleteByUserId(userId);
     }
 }

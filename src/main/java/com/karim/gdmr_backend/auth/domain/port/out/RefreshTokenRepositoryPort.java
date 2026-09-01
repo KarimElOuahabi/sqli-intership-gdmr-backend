@@ -10,4 +10,5 @@ public interface RefreshTokenRepositoryPort {
     void revokeByHash(String tokenHash);
 
     void revokeAllByUserId(Long userId);
+    void deleteAllByUserId(Long userId);
 }

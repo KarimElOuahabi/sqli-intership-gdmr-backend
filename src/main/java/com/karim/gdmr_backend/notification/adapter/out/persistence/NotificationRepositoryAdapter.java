@@ -63,6 +63,12 @@ public class NotificationRepositoryAdapter implements NotificationRepositoryPort
         return jpaRepository.existsByRelatedVisitIdAndType(visitId, type);
     }
 
+    @Override
+    public void deleteAllForUser(Long userId) {
+        jpaRepository.clearRelatedUserId(userId);
+        jpaRepository.deleteByRecipientUserId(userId);
+    }
+
     private Notification toDomain(NotificationEntity entity) {
         return new Notification(entity.getId(), entity.getRecipientUserId(), entity.getType(),
                 entity.getTitle(), entity.getMessage(), entity.getRelatedVisitId(),

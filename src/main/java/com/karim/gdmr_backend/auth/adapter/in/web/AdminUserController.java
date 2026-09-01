@@ -6,7 +6,11 @@ import com.karim.gdmr_backend.auth.domain.model.Role;
 import com.karim.gdmr_backend.auth.domain.model.User;
 import com.karim.gdmr_backend.auth.domain.model.UserPrincipal;
 import com.karim.gdmr_backend.auth.domain.port.in.*;
+import com.karim.gdmr_backend.doctor.domain.port.in.DeleteDoctorByUserIdUseCase;
 import com.karim.gdmr_backend.doctor.domain.port.in.UpsertDoctorUseCase;
+import com.karim.gdmr_backend.notification.domain.port.in.DeleteUserNotificationsUseCase;
+import com.karim.gdmr_backend.profileissue.domain.port.in.DeleteUserProfileIssuesUseCase;
+import com.karim.gdmr_backend.staff.domain.port.in.DeleteStaffProfileByUserIdUseCase;
 import com.karim.gdmr_backend.staff.domain.port.in.UpdateMyStaffProfileUseCase;
 import jakarta.validation.Valid;
 import org.springframework.http.ResponseEntity;
@@ -14,6 +18,7 @@ import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
+import com.karim.gdmr_backend.employee.domain.port.in.DeleteEmployeeByUserIdUseCase;
 import com.karim.gdmr_backend.employee.domain.port.in.UpsertEmployeeUseCase;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -29,6 +34,12 @@ public class AdminUserController {
     private final UpsertEmployeeUseCase upsertEmployeeUseCase;
     private final UpsertDoctorUseCase upsertDoctorUseCase;
     private final UpdateMyStaffProfileUseCase updateStaffProfileUseCase;
+    private final DeleteUserUseCase deleteUserUseCase;
+    private final DeleteEmployeeByUserIdUseCase deleteEmployeeByUserIdUseCase;
+    private final DeleteDoctorByUserIdUseCase deleteDoctorByUserIdUseCase;
+    private final DeleteStaffProfileByUserIdUseCase deleteStaffProfileByUserIdUseCase;
+    private final DeleteUserNotificationsUseCase deleteUserNotificationsUseCase;
+    private final DeleteUserProfileIssuesUseCase deleteUserProfileIssuesUseCase;
 
     public AdminUserController(CreateUserByAdminUseCase createUserByAdminUseCase,
                                ListUsersUseCase listUsersUseCase,
@@ -36,7 +47,13 @@ public class AdminUserController {
                                ChangeUserStatusUseCase changeUserStatusUseCase,
                                GetRolesStatsUseCase getRolesStatsUseCase,
                                UpsertEmployeeUseCase upsertEmployeeUseCase, UpsertDoctorUseCase upsertDoctorUseCase,
-                               UpdateMyStaffProfileUseCase updateStaffProfileUseCase) {
+                               UpdateMyStaffProfileUseCase updateStaffProfileUseCase,
+                               DeleteUserUseCase deleteUserUseCase,
+                               DeleteEmployeeByUserIdUseCase deleteEmployeeByUserIdUseCase,
+                               DeleteDoctorByUserIdUseCase deleteDoctorByUserIdUseCase,
+                               DeleteStaffProfileByUserIdUseCase deleteStaffProfileByUserIdUseCase,
+                               DeleteUserNotificationsUseCase deleteUserNotificationsUseCase,
+                               DeleteUserProfileIssuesUseCase deleteUserProfileIssuesUseCase) {
         this.createUserByAdminUseCase = createUserByAdminUseCase;
         this.listUsersUseCase = listUsersUseCase;
         this.updateUserUseCase = updateUserUseCase;
@@ -45,6 +62,12 @@ public class AdminUserController {
         this.upsertEmployeeUseCase = upsertEmployeeUseCase;
         this.upsertDoctorUseCase = upsertDoctorUseCase;
         this.updateStaffProfileUseCase = updateStaffProfileUseCase;
+        this.deleteUserUseCase = deleteUserUseCase;
+        this.deleteEmployeeByUserIdUseCase = deleteEmployeeByUserIdUseCase;
+        this.deleteDoctorByUserIdUseCase = deleteDoctorByUserIdUseCase;
+        this.deleteStaffProfileByUserIdUseCase = deleteStaffProfileByUserIdUseCase;
+        this.deleteUserNotificationsUseCase = deleteUserNotificationsUseCase;
+        this.deleteUserProfileIssuesUseCase = deleteUserProfileIssuesUseCase;
     }
 
     @PostMapping
@@ -140,6 +163,28 @@ public class AdminUserController {
     public ResponseEntity<List<RolesStatsResponse>> getRolesStats() {
         List<GetRolesStatsUseCase.RolesStats> stats = getRolesStatsUseCase.getRolesStats();
         return ResponseEntity.ok(stats.stream().map(RolesStatsResponse::from).toList());
+    }
+
+    // Hard delete — for a user created with the wrong role/details and no real history yet.
+    // Deactivate (above) remains the normal way to disable an account that has actually been used.
+    // Order matters: FK-dependent rows (employee/doctor/staff profile) must go before the user row
+    // itself, which is why this orchestrates across modules here rather than in a single service call.
+    @DeleteMapping("/{id}")
+    @Transactional
+    public ResponseEntity<Void> deleteUser(@PathVariable Long id,
+                                           @AuthenticationPrincipal UserPrincipal principal) {
+        if (id.equals(principal.userId())) {
+            throw new IllegalStateException("You cannot delete your own account");
+        }
+
+        deleteEmployeeByUserIdUseCase.deleteByUserId(id);
+        deleteDoctorByUserIdUseCase.deleteByUserId(id);
+        deleteStaffProfileByUserIdUseCase.deleteByUserId(id);
+        deleteUserNotificationsUseCase.deleteForUser(id);
+        deleteUserProfileIssuesUseCase.deleteForUser(id);
+        deleteUserUseCase.deleteUser(id);
+
+        return ResponseEntity.noContent().build();
     }
 
 }

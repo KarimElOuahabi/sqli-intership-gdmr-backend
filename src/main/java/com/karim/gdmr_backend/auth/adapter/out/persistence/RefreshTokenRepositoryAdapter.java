@@ -48,6 +48,11 @@ public class RefreshTokenRepositoryAdapter implements RefreshTokenRepositoryPort
         jpaRepository.revokeAllByUserId(userId);
     }
 
+    @Override
+    public void deleteAllByUserId(Long userId) {
+        jpaRepository.deleteByUserId(userId);
+    }
+
     private RefreshToken toDomain(RefreshTokenEntity entity) {
         return new RefreshToken(entity.getId(), entity.getUserId(), entity.getTokenHash(),
                 entity.getExpiresAt(), entity.isRevoked());

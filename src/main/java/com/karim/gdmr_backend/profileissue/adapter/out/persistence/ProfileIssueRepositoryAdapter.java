@@ -42,6 +42,11 @@ public class ProfileIssueRepositoryAdapter implements ProfileIssueRepositoryPort
                 .map(this::toDomain).toList();
     }
 
+    @Override
+    public void deleteAllForUser(Long userId) {
+        jpaRepository.deleteAllByReportedUserIdOrReporterUserId(userId, userId);
+    }
+
     private ProfileIssue toDomain(ProfileIssueEntity entity) {
         return new ProfileIssue(entity.getId(), entity.getReportedUserId(), entity.getReporterUserId(),
                 entity.getFieldName(), entity.getSuggestedCorrection(), entity.getNote(),

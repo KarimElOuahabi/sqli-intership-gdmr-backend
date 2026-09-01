@@ -9,4 +9,5 @@ public interface ProfileIssueRepositoryPort {
     ProfileIssue save(ProfileIssue issue);
     Optional<ProfileIssue> findById(Long id);
     List<ProfileIssue> findAllByReportedUserId(Long reportedUserId);
+    void deleteAllForUser(Long userId);
 }

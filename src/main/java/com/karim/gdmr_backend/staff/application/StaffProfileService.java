@@ -1,6 +1,7 @@
 package com.karim.gdmr_backend.staff.application;
 
 import com.karim.gdmr_backend.staff.domain.model.StaffProfile;
+import com.karim.gdmr_backend.staff.domain.port.in.DeleteStaffProfileByUserIdUseCase;
 import com.karim.gdmr_backend.staff.domain.port.in.GetMyStaffProfileUseCase;
 import com.karim.gdmr_backend.staff.domain.port.in.UpdateMyStaffProfileUseCase;
 import com.karim.gdmr_backend.staff.domain.port.out.StaffProfileRepositoryPort;
@@ -9,7 +10,7 @@ import org.springframework.transaction.annotation.Transactional;
 
 @Service
 @Transactional
-public class StaffProfileService implements GetMyStaffProfileUseCase, UpdateMyStaffProfileUseCase {
+public class StaffProfileService implements GetMyStaffProfileUseCase, UpdateMyStaffProfileUseCase, DeleteStaffProfileByUserIdUseCase {
 
     private final StaffProfileRepositoryPort staffProfileRepository;
 
@@ -38,5 +39,10 @@ public class StaffProfileService implements GetMyStaffProfileUseCase, UpdateMySt
         );
 
         return staffProfileRepository.save(toSave);
+    }
+
+    @Override
+    public void deleteByUserId(Long userId) {
+        staffProfileRepository.deleteByUserId(userId);
     }
 }

@@ -178,6 +178,17 @@ public class VisitController {
         return ResponseEntity.ok(VisitResponse.fullAccess(v));
     }
 
+    // Backs the eye-icon "view details" action on the visits datatable / calendar cards.
+    @GetMapping("/{id}")
+    public ResponseEntity<VisitResponse> getVisit(Authentication authentication, @PathVariable Long id) {
+        Visit visit = getVisitByIdUseCase.getVisit(id);
+        assertCanViewVisit(authentication, visit);
+
+        String role = authentication.getAuthorities().iterator().next().getAuthority().replace("ROLE_", "");
+        boolean canSeeReport = role.equals("DOCTOR") || role.equals("EMPLOYEE");
+        return ResponseEntity.ok(canSeeReport ? VisitResponse.fullAccess(visit) : VisitResponse.administrativeView(visit));
+    }
+
     @GetMapping
     public ResponseEntity<PagedResponse<VisitResponse>> listVisits(
             Authentication authentication,

@@ -55,6 +55,11 @@ public class DoctorRepositoryAdapter implements DoctorRepositoryPort {
     }
 
     @Override
+    public void deleteByUserId(Long userId) {
+        doctorJpaRepository.findByUserId(userId).ifPresent(doctorJpaRepository::delete);
+    }
+
+    @Override
     public PageResult<Doctor> findAllPaged(ListDoctorsQuery query) {
         var pageable = PageRequest.of(query.page(), query.size(), Sort.by(Sort.Direction.DESC, "createdAt"));
         var page = doctorJpaRepository.findAll(pageable);

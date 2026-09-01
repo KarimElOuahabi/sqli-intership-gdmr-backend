@@ -11,4 +11,5 @@ public interface DoctorRepositoryPort {
     Optional<Doctor> findById(Long doctorId);
     Optional<Doctor> findByUserId(Long userId);
     PageResult<Doctor> findAllPaged(ListDoctorsUseCase.ListDoctorsQuery query);
+    void deleteByUserId(Long userId);
 }

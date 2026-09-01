@@ -51,6 +51,7 @@ public class SecurityConfig {
                         .requestMatchers(HttpMethod.PATCH, "/api/visits/*/status").hasRole("DOCTOR")
                         .requestMatchers(HttpMethod.PATCH, "/api/visits/*/report").hasRole("DOCTOR")
                         .requestMatchers(HttpMethod.GET, "/api/visits/*/negotiation-history").hasAnyRole("ADMIN", "HR", "DOCTOR", "EMPLOYEE")
+                        .requestMatchers(HttpMethod.GET, "/api/visits/*").hasAnyRole("ADMIN", "HR", "DOCTOR", "EMPLOYEE")
                         .requestMatchers(HttpMethod.GET, "/api/visits").hasAnyRole("ADMIN", "HR", "DOCTOR", "EMPLOYEE")
 
                         .requestMatchers(HttpMethod.GET, "/api/staff/profile").hasAnyRole("ADMIN", "HR")

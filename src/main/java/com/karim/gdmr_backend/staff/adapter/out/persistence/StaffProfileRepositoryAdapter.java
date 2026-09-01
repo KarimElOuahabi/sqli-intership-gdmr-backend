@@ -35,6 +35,11 @@ public class StaffProfileRepositoryAdapter implements StaffProfileRepositoryPort
         return jpaRepository.findByUserId(userId).map(this::toDomain);
     }
 
+    @Override
+    public void deleteByUserId(Long userId) {
+        jpaRepository.findByUserId(userId).ifPresent(jpaRepository::delete);
+    }
+
     private StaffProfile toDomain(StaffProfileEntity entity) {
         return new StaffProfile(
                 entity.getId(),

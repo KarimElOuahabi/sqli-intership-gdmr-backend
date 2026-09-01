@@ -20,6 +20,7 @@ import com.karim.gdmr_backend.visit.domain.exception.NotAssignedDoctorException;
 import com.karim.gdmr_backend.visit.domain.exception.UnauthorizedVisitAccessException;
 import com.karim.gdmr_backend.visit.domain.exception.VisitNotFoundException;
 import jakarta.servlet.http.HttpServletRequest;
+import org.springframework.dao.DataIntegrityViolationException;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.AccessDeniedException;
@@ -58,6 +59,16 @@ public class GlobalExceptionHandler {
     })
     public ResponseEntity<ErrorResponse> handleConflict(RuntimeException ex, HttpServletRequest request) {
         return build(HttpStatus.CONFLICT, ex, request);
+    }
+
+    // ---- Suppression bloquée par une dépendance en base (ex: visites/documents liés) → 409 ----
+    @ExceptionHandler(DataIntegrityViolationException.class)
+    public ResponseEntity<ErrorResponse> handleDataIntegrityViolation(DataIntegrityViolationException ex,
+                                                                       HttpServletRequest request) {
+        return build(HttpStatus.CONFLICT,
+                new RuntimeException("This record can't be deleted because other data still references it "
+                        + "(e.g. visits or documents). Deactivate it instead."),
+                request);
     }
 
     // ---- Requête invalide au regard des règles métier → 400 ----

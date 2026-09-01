@@ -20,7 +20,7 @@ import java.util.regex.Pattern;
 
 @Service
 @Transactional
-public class AdminUserService implements CreateUserByAdminUseCase, UpdateUserUseCase, ListUsersUseCase, ChangeUserStatusUseCase, GetRolesStatsUseCase, GetUsersByIdsUseCase {
+public class AdminUserService implements CreateUserByAdminUseCase, UpdateUserUseCase, ListUsersUseCase, ChangeUserStatusUseCase, GetRolesStatsUseCase, GetUsersByIdsUseCase, DeleteUserUseCase {
 
     private static final String EMAIL_DOMAIN = "@sqli-gdmr.com";
 
@@ -92,6 +92,18 @@ public class AdminUserService implements CreateUserByAdminUseCase, UpdateUserUse
         return Arrays.stream(Role.values())
                 .map(userRepository::getRoleStats)
                 .toList();
+    }
+
+    // Called last by AdminUserController.deleteUser, after the other modules' own
+    // delete-by-user-id use cases have already removed the FK-dependent employee/doctor/
+    // staff profile rows — this only touches auth-owned records plus the user row itself.
+    @Override
+    public void deleteUser(Long userId) {
+        User existing = userRepository.findById(userId)
+                .orElseThrow(() -> new UserNotFoundException(userId));
+
+        refreshTokenRepository.deleteAllByUserId(existing.getId());
+        userRepository.deleteById(existing.getId());
     }
 
     private String generateUniqueEmail(String firstName, String lastName) {

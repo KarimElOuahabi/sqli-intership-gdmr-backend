@@ -18,4 +18,5 @@ public interface UserRepositoryPort {
     boolean existsByEmail(String email);                    // new — for email collision checking
     PageResult<User> findAllPaged(ListUsersQuery query);      // new — for the admin datatable
     GetRolesStatsUseCase.RolesStats getRoleStats(Role role);
+    void deleteById(Long id);
 }

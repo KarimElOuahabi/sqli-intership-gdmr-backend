@@ -11,4 +11,5 @@ public interface EmployeeRepositoryPort {
     Optional<Employee> findById(Long id);
     Optional<Employee> findByUserId(Long userId);
     PageResult<Employee> findAllPaged(ListEmployeesUseCase.ListEmployeesQuery query);
+    void deleteByUserId(Long userId);
 }

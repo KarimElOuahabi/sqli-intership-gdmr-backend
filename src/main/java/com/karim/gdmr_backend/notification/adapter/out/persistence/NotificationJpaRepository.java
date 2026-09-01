@@ -4,6 +4,7 @@ import com.karim.gdmr_backend.notification.domain.model.NotificationType;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.jpa.repository.JpaRepository;
+import org.springframework.data.jpa.repository.Modifying;
 import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.query.Param;
 
@@ -26,4 +27,10 @@ public interface NotificationJpaRepository extends JpaRepository<NotificationEnt
     long countByRecipientUserIdAndReadFalse(Long recipientUserId);
 
     boolean existsByRelatedVisitIdAndType(Long relatedVisitId, NotificationType type);
+
+    void deleteByRecipientUserId(Long recipientUserId);
+
+    @Modifying
+    @Query("UPDATE NotificationEntity n SET n.relatedUserId = NULL WHERE n.relatedUserId = :userId")
+    void clearRelatedUserId(@Param("userId") Long userId);
 }

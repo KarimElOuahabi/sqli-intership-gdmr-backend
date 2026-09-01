@@ -6,4 +6,6 @@ import java.util.List;
 
 public interface ProfileIssueJpaRepository extends JpaRepository<ProfileIssueEntity, Long> {
     List<ProfileIssueEntity> findAllByReportedUserIdOrderByCreatedAtDesc(Long reportedUserId);
+
+    void deleteAllByReportedUserIdOrReporterUserId(Long reportedUserId, Long reporterUserId);
 }

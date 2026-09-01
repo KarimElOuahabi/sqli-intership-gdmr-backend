@@ -21,7 +21,7 @@ import org.springframework.stereotype.Service;
 
 @Service
 @Transactional
-public class DoctorService implements GetMyProfileUseCase, UpsertDoctorUseCase, ListDoctorsUseCase, GetDoctorByIdUseCase, GetDoctorIdByUserIdUseCase {
+public class DoctorService implements GetMyProfileUseCase, UpsertDoctorUseCase, ListDoctorsUseCase, GetDoctorByIdUseCase, GetDoctorIdByUserIdUseCase, DeleteDoctorByUserIdUseCase {
 
     private final DoctorRepositoryPort doctorRepository;
     private final UserRepositoryPort userRepository;
@@ -74,5 +74,10 @@ public class DoctorService implements GetMyProfileUseCase, UpsertDoctorUseCase, 
         return doctorRepository.findByUserId(userId)
                 .orElseThrow(() -> new DoctorNotFoundException(userId))
                 .getId();
+    }
+
+    @Override
+    public void deleteByUserId(Long userId) {
+        doctorRepository.deleteByUserId(userId);
     }
 }

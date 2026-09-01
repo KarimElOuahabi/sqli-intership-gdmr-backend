@@ -92,17 +92,31 @@ public class UserRepositoryAdapter implements UserRepositoryPort {
                 page.getTotalElements(), page.getTotalPages());
     }
 
+    @Override
+    public void deleteById(Long id) {
+        userJpaRepository.deleteById(id);
+    }
+
     private Specification<UserEntity> buildSpecification(ListUsersQuery query) {
         return (root, criteriaQuery, cb) -> {
             var predicates = new java.util.ArrayList<jakarta.persistence.criteria.Predicate>();
 
             if (query.search() != null && !query.search().isBlank()) {
-                String pattern = "%" + query.search().toLowerCase() + "%";
-                predicates.add(cb.or(
+                String trimmed = query.search().trim();
+                String pattern = "%" + trimmed.toLowerCase() + "%";
+                var searchPredicates = new java.util.ArrayList<jakarta.persistence.criteria.Predicate>(List.of(
                         cb.like(cb.lower(root.get("firstName")), pattern),
                         cb.like(cb.lower(root.get("lastName")), pattern),
                         cb.like(cb.lower(root.get("email")), pattern)
                 ));
+                // A purely numeric search also matches the user's raw ID exactly,
+                // so typing "7" finds user #7 in addition to any name/email match.
+                try {
+                    searchPredicates.add(cb.equal(root.get("id"), Long.parseLong(trimmed)));
+                } catch (NumberFormatException ignored) {
+                    // not a numeric search — id predicate simply doesn't apply
+                }
+                predicates.add(cb.or(searchPredicates.toArray(new jakarta.persistence.criteria.Predicate[0])));
             }
 
             if (query.role() != null) {

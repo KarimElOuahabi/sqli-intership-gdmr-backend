@@ -13,4 +13,6 @@ public interface NotificationRepositoryPort {
     PageResult<Notification> findAllForUser(Long userId, Boolean unreadOnly, List<NotificationType> types, int page, int size);
     long countUnread(Long userId);
     boolean existsByRelatedVisitIdAndType(Long visitId, NotificationType type);
+
+    void deleteAllForUser(Long userId);
 }

@@ -56,6 +56,11 @@ public class EmployeeRepositoryAdapter implements EmployeeRepositoryPort {
     }
 
     @Override
+    public void deleteByUserId(Long userId) {
+        employeeJpaRepository.findByUserId(userId).ifPresent(employeeJpaRepository::delete);
+    }
+
+    @Override
     public PageResult<Employee> findAllPaged(ListEmployeesQuery query) {
         boolean hasSearch = query.search() != null && !query.search().isBlank();
         var pageable = hasSearch

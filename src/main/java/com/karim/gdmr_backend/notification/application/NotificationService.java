@@ -6,6 +6,7 @@ import com.karim.gdmr_backend.notification.domain.exception.UnauthorizedNotifica
 import com.karim.gdmr_backend.notification.domain.model.Notification;
 import com.karim.gdmr_backend.notification.domain.model.NotificationType;
 import com.karim.gdmr_backend.notification.domain.port.in.CountUnreadNotificationsUseCase;
+import com.karim.gdmr_backend.notification.domain.port.in.DeleteUserNotificationsUseCase;
 import com.karim.gdmr_backend.notification.domain.port.in.ListNotificationsUseCase;
 import com.karim.gdmr_backend.notification.domain.port.in.MarkNotificationReadUseCase;
 import com.karim.gdmr_backend.notification.domain.port.in.SendNotificationUseCase;
@@ -21,7 +22,8 @@ public class NotificationService implements
         SendNotificationUseCase,
         ListNotificationsUseCase,
         CountUnreadNotificationsUseCase,
-        MarkNotificationReadUseCase {
+        MarkNotificationReadUseCase,
+        DeleteUserNotificationsUseCase {
 
     private final NotificationRepositoryPort notificationRepository;
     private final SseEmitterRegistry sseEmitterRegistry;
@@ -79,6 +81,11 @@ public class NotificationService implements
         for (Notification n : unread.content()) {
             notificationRepository.save(n.withRead(true));
         }
+    }
+
+    @Override
+    public void deleteForUser(Long userId) {
+        notificationRepository.deleteAllForUser(userId);
     }
 
     /** What actually goes out over SSE — just enough for the client to update its badge/list. */

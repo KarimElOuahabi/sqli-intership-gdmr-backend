@@ -9,6 +9,7 @@ import com.karim.gdmr_backend.notification.domain.model.NotificationType;
 import com.karim.gdmr_backend.notification.domain.port.in.SendNotificationUseCase;
 import com.karim.gdmr_backend.profileissue.domain.exception.ProfileIssueNotFoundException;
 import com.karim.gdmr_backend.profileissue.domain.model.ProfileIssue;
+import com.karim.gdmr_backend.profileissue.domain.port.in.DeleteUserProfileIssuesUseCase;
 import com.karim.gdmr_backend.profileissue.domain.port.in.ListProfileIssuesUseCase;
 import com.karim.gdmr_backend.profileissue.domain.port.in.ResolveProfileIssueUseCase;
 import com.karim.gdmr_backend.profileissue.domain.port.out.ProfileIssueRepositoryPort;
@@ -20,7 +21,7 @@ import java.util.stream.Stream;
 
 @Service
 @Transactional
-public class ProfileIssueService implements ListProfileIssuesUseCase, ResolveProfileIssueUseCase {
+public class ProfileIssueService implements ListProfileIssuesUseCase, ResolveProfileIssueUseCase, DeleteUserProfileIssuesUseCase {
 
     private final GetCurrentUserUseCase getCurrentUserUseCase;
     private final ListUsersUseCase listUsersUseCase;
@@ -72,5 +73,10 @@ public class ProfileIssueService implements ListProfileIssuesUseCase, ResolvePro
         ProfileIssue existing = profileIssueRepository.findById(issueId)
                 .orElseThrow(() -> new ProfileIssueNotFoundException(issueId));
         return profileIssueRepository.save(existing.withResolved(resolved));
+    }
+
+    @Override
+    public void deleteForUser(Long userId) {
+        profileIssueRepository.deleteAllForUser(userId);
     }
 }
