@@ -200,12 +200,17 @@ public class VisitController {
 
         String role = authentication.getAuthorities().iterator().next().getAuthority().replace("ROLE_", "");
         boolean isEmployee = role.equals("EMPLOYEE");
-        boolean canSeeReport = role.equals("DOCTOR") || isEmployee;
+        boolean isDoctor = role.equals("DOCTOR");
+        boolean canSeeReport = isDoctor || isEmployee;
 
         Long effectiveEmployeeId = isEmployee ? resolveEmployeeId(authentication) : employeeId;
+        // A doctor can only ever list their own visits — never another
+        // doctor's, and never a patient's full cross-doctor history — so the
+        // caller-supplied doctorId is ignored and forced to their own id.
+        Long effectiveDoctorId = isDoctor ? resolveDoctorId(authentication) : doctorId;
 
         PageResult<Visit> result = listVisitsUseCase.listVisits(
-                new ListVisitsUseCase.ListVisitsQuery(effectiveEmployeeId, doctorId, status, page, size));
+                new ListVisitsUseCase.ListVisitsQuery(effectiveEmployeeId, effectiveDoctorId, status, page, size));
 
         PageResult<VisitResponse> mapped = new PageResult<>(
                 result.content().stream()

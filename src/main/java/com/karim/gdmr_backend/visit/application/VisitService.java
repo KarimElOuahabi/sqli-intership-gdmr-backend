@@ -46,7 +46,8 @@ public class VisitService implements
         SendVisitRemindersUseCase,
         UpdateVisitStatusUseCase,
         SubmitVisitReportUseCase,
-        ListVisitsUseCase {
+        ListVisitsUseCase,
+        GetPatientEmployeeIdsUseCase {
 
     // Explicit Locale avoids relying on the JVM's default locale for month names — minimal
     // container base images (e.g. Azure's Linux JRE) don't always ship full locale data, which
@@ -284,6 +285,8 @@ public class VisitService implements
             throw new NotAssignedDoctorException(command.visitId());
         }
 
+        assertAllowed(existing.getStatus(), VisitStatus.COMPLETED);
+
         return visitRepository.save(existing.withReport(command.reportNotes()));
     }
 
@@ -291,6 +294,12 @@ public class VisitService implements
     @Transactional(readOnly = true)
     public com.karim.gdmr_backend.auth.domain.model.PageResult<Visit> listVisits(ListVisitsQuery query) {
         return visitRepository.findAllPaged(query);
+    }
+
+    @Override
+    @Transactional(readOnly = true)
+    public List<Long> getPatientEmployeeIds(Long doctorId) {
+        return visitRepository.findDistinctEmployeeIdsByDoctorId(doctorId);
     }
 
     @Override

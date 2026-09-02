@@ -3,6 +3,7 @@ package com.karim.gdmr_backend.employee.adapter.out.persistence;
 import com.karim.gdmr_backend.auth.domain.model.PageResult;
 import com.karim.gdmr_backend.employee.domain.model.Department;
 import com.karim.gdmr_backend.employee.domain.model.Employee;
+import com.karim.gdmr_backend.employee.domain.port.in.ListEmployeesUseCase.ListEmployeesByIdsQuery;
 import com.karim.gdmr_backend.employee.domain.port.in.ListEmployeesUseCase.ListEmployeesQuery;
 import com.karim.gdmr_backend.employee.domain.port.out.EmployeeRepositoryPort;
 import org.springframework.data.domain.PageRequest;
@@ -62,13 +63,44 @@ public class EmployeeRepositoryAdapter implements EmployeeRepositoryPort {
 
     @Override
     public PageResult<Employee> findAllPaged(ListEmployeesQuery query) {
-        boolean hasSearch = query.search() != null && !query.search().isBlank();
+        boolean hasNameSearch = query.search() != null && !query.search().isBlank();
+        boolean hasIdSearch = query.idSearch() != null && !query.idSearch().isBlank();
+        boolean hasSearch = hasNameSearch || hasIdSearch;
         var pageable = hasSearch
                 ? PageRequest.of(query.page(), query.size())
                 : PageRequest.of(query.page(), query.size(), Sort.by(Sort.Direction.DESC, "createdAt"));
         var page = hasSearch
-                ? employeeJpaRepository.search(query.search(), pageable)
+                ? employeeJpaRepository.searchByNameAndId(
+                        hasNameSearch ? query.search() : null,
+                        hasIdSearch ? query.idSearch() : null,
+                        pageable)
                 : employeeJpaRepository.findAll(pageable);
+
+        List<Employee> content = page.getContent().stream().map(this::toDomain).toList();
+
+        return new PageResult<>(
+                content,
+                page.getNumber(),
+                page.getSize(),
+                page.getTotalElements(),
+                page.getTotalPages()
+        );
+    }
+
+    @Override
+    public PageResult<Employee> findAllPagedByIds(ListEmployeesByIdsQuery query) {
+        if (query.employeeIds() == null || query.employeeIds().isEmpty()) {
+            return new PageResult<>(List.of(), query.page(), query.size(), 0, 0);
+        }
+
+        boolean hasNameSearch = query.search() != null && !query.search().isBlank();
+        boolean hasIdSearch = query.idSearch() != null && !query.idSearch().isBlank();
+        var pageable = PageRequest.of(query.page(), query.size());
+        var page = employeeJpaRepository.searchByIdsNameAndId(
+                query.employeeIds(),
+                hasNameSearch ? query.search() : null,
+                hasIdSearch ? query.idSearch() : null,
+                pageable);
 
         List<Employee> content = page.getContent().stream().map(this::toDomain).toList();
 

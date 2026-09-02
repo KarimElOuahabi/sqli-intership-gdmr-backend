@@ -13,4 +13,5 @@ public interface VisitRepositoryPort {
     Optional<Visit> findById(Long id);
     PageResult<Visit> findAllPaged(ListVisitsQuery query);
     List<Visit> findScheduledBetween(LocalDateTime from, LocalDateTime to);
+    List<Long> findDistinctEmployeeIdsByDoctorId(Long doctorId);
 }

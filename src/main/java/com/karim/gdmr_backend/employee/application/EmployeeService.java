@@ -61,6 +61,11 @@ public class EmployeeService implements GetMyProfileUseCase, UpsertEmployeeUseCa
     }
 
     @Override
+    public PageResult<Employee> listEmployeesByIds(ListEmployeesByIdsQuery query) {
+        return employeeRepository.findAllPagedByIds(query);
+    }
+
+    @Override
     public Employee getEmployeeById(Long employeeId) {
         return employeeRepository.findById(employeeId)
                 .orElseThrow(() -> new EmployeeNotFoundException(employeeId));

@@ -61,8 +61,18 @@ public class DoctorRepositoryAdapter implements DoctorRepositoryPort {
 
     @Override
     public PageResult<Doctor> findAllPaged(ListDoctorsQuery query) {
-        var pageable = PageRequest.of(query.page(), query.size(), Sort.by(Sort.Direction.DESC, "createdAt"));
-        var page = doctorJpaRepository.findAll(pageable);
+        boolean hasNameSearch = query.search() != null && !query.search().isBlank();
+        boolean hasIdSearch = query.idSearch() != null && !query.idSearch().isBlank();
+        boolean hasSearch = hasNameSearch || hasIdSearch;
+        var pageable = hasSearch
+                ? PageRequest.of(query.page(), query.size())
+                : PageRequest.of(query.page(), query.size(), Sort.by(Sort.Direction.DESC, "createdAt"));
+        var page = hasSearch
+                ? doctorJpaRepository.searchByNameAndId(
+                        hasNameSearch ? query.search() : null,
+                        hasIdSearch ? query.idSearch() : null,
+                        pageable)
+                : doctorJpaRepository.findAll(pageable);
 
         List<Doctor> content = page.getContent().stream().map(this::toDomain).toList();
 

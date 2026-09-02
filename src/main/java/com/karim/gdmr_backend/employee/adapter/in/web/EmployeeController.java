@@ -21,6 +21,8 @@ import org.springframework.security.core.Authentication;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.web.bind.annotation.*;
 import com.karim.gdmr_backend.employee.domain.port.in.GetEmployeeByIdUseCase;
+import com.karim.gdmr_backend.doctor.domain.port.in.GetDoctorIdByUserIdUseCase;
+import com.karim.gdmr_backend.visit.domain.port.in.GetPatientEmployeeIdsUseCase;
 
 
 import java.util.List;
@@ -36,19 +38,25 @@ public class EmployeeController {
     private final GetCurrentUserUseCase getCurrentUserUseCase;
     private final GetUsersByIdsUseCase getUsersByIdsUseCase;
     private final GetEmployeeByIdUseCase getEmployeeByIdUseCase;
+    private final GetDoctorIdByUserIdUseCase getDoctorIdByUserIdUseCase;
+    private final GetPatientEmployeeIdsUseCase getPatientEmployeeIdsUseCase;
 
     public EmployeeController(GetMyProfileUseCase getMyProfileUseCase,
                               UpsertEmployeeUseCase upsertEmployeeUseCase,
                               ListEmployeesUseCase listEmployeesUseCase,
                               GetCurrentUserUseCase getCurrentUserUseCase,
                               GetUsersByIdsUseCase getUsersByIdsUseCase,
-                              GetEmployeeByIdUseCase getEmployeeByIdUseCase) {
+                              GetEmployeeByIdUseCase getEmployeeByIdUseCase,
+                              GetDoctorIdByUserIdUseCase getDoctorIdByUserIdUseCase,
+                              GetPatientEmployeeIdsUseCase getPatientEmployeeIdsUseCase) {
         this.getMyProfileUseCase = getMyProfileUseCase;
         this.upsertEmployeeUseCase = upsertEmployeeUseCase;
         this.listEmployeesUseCase = listEmployeesUseCase;
         this.getCurrentUserUseCase = getCurrentUserUseCase;
         this.getUsersByIdsUseCase = getUsersByIdsUseCase;
         this.getEmployeeByIdUseCase = getEmployeeByIdUseCase;
+        this.getDoctorIdByUserIdUseCase = getDoctorIdByUserIdUseCase;
+        this.getPatientEmployeeIdsUseCase = getPatientEmployeeIdsUseCase;
     }
 
     @GetMapping("/api/employee/profile")
@@ -75,11 +83,42 @@ public class EmployeeController {
     @GetMapping("/api/employees")
     public ResponseEntity<PagedResponse<EmployeeProfileResponse>> listEmployees(
             @RequestParam(required = false) String search,
+            @RequestParam(required = false) String idSearch,
             @RequestParam(defaultValue = "0") int page,
             @RequestParam(defaultValue = "20") int size) {
 
         PageResult<Employee> result = listEmployeesUseCase.listEmployees(
-                new ListEmployeesUseCase.ListEmployeesQuery(search, page, size));
+                new ListEmployeesUseCase.ListEmployeesQuery(search, idSearch, page, size));
+
+        List<Long> userIds = result.content().stream().map(Employee::getUserId).toList();
+        Map<Long, User> usersById = getUsersByIdsUseCase.getUsersByIds(userIds).stream()
+                .collect(Collectors.toMap(User::getId, u -> u));
+
+        List<EmployeeProfileResponse> content = result.content().stream()
+                .map(emp -> EmployeeProfileResponse.from(usersById.get(emp.getUserId()), emp))
+                .toList();
+
+        PageResult<EmployeeProfileResponse> mapped = new PageResult<>(
+                content, result.page(), result.size(), result.totalElements(), result.totalPages());
+
+        return ResponseEntity.ok(PagedResponse.from(mapped));
+    }
+
+    // A doctor's own patient list: only employees they have (or had) at least
+    // one visit with — REQUESTED through COMPLETED/ABSENT, any status.
+    @GetMapping("/api/employees/my-patients")
+    public ResponseEntity<PagedResponse<EmployeeProfileResponse>> listMyPatients(
+            @AuthenticationPrincipal UserPrincipal principal,
+            @RequestParam(required = false) String search,
+            @RequestParam(required = false) String idSearch,
+            @RequestParam(defaultValue = "0") int page,
+            @RequestParam(defaultValue = "20") int size) {
+
+        Long doctorId = getDoctorIdByUserIdUseCase.getDoctorId(principal.userId());
+        List<Long> patientEmployeeIds = getPatientEmployeeIdsUseCase.getPatientEmployeeIds(doctorId);
+
+        PageResult<Employee> result = listEmployeesUseCase.listEmployeesByIds(
+                new ListEmployeesUseCase.ListEmployeesByIdsQuery(patientEmployeeIds, search, idSearch, page, size));
 
         List<Long> userIds = result.content().stream().map(Employee::getUserId).toList();
         Map<Long, User> usersById = getUsersByIdsUseCase.getUsersByIds(userIds).stream()

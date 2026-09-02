@@ -30,4 +30,7 @@ public interface VisitJpaRepository extends JpaRepository<VisitEntity, Long> {
     AND v.confirmedDateTime BETWEEN :from AND :to
     """)
     List<VisitEntity> findScheduledBetween(@Param("from") LocalDateTime from, @Param("to") LocalDateTime to);
+
+    @Query("SELECT DISTINCT v.employeeId FROM VisitEntity v WHERE v.doctorId = :doctorId")
+    List<Long> findDistinctEmployeeIdsByDoctorId(@Param("doctorId") Long doctorId);
 }

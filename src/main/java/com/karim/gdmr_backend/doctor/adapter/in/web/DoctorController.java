@@ -74,11 +74,12 @@ public class DoctorController {
     @GetMapping("/api/doctors")
     public ResponseEntity<PagedResponse<DoctorProfileResponse>> listDoctors(
             @RequestParam(required = false) String search,
+            @RequestParam(required = false) String idSearch,
             @RequestParam(defaultValue = "0") int page,
             @RequestParam(defaultValue = "20") int size) {
 
         PageResult<Doctor> result = listDoctorsUseCase.listDoctors(
-                new ListDoctorsUseCase.ListDoctorsQuery(search, page, size));
+                new ListDoctorsUseCase.ListDoctorsQuery(search, idSearch, page, size));
 
         List<Long> userIds = result.content().stream().map(Doctor::getUserId).toList();
         Map<Long, User> usersById = getUsersByIdsUseCase.getUsersByIds(userIds).stream()

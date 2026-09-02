@@ -66,6 +66,11 @@ public class VisitRepositoryAdapter implements VisitRepositoryPort {
         return jpaRepository.findScheduledBetween(from, to).stream().map(this::toDomain).toList();
     }
 
+    @Override
+    public List<Long> findDistinctEmployeeIdsByDoctorId(Long doctorId) {
+        return jpaRepository.findDistinctEmployeeIdsByDoctorId(doctorId);
+    }
+
     private Visit toDomain(VisitEntity entity) {
         return new Visit(
                 entity.getId(),
