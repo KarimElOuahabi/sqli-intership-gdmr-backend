@@ -4,6 +4,7 @@ import com.karim.gdmr_backend.auth.domain.model.UserPrincipal;
 import com.karim.gdmr_backend.profileissue.adapter.in.web.dto.ProfileIssueResponse;
 import com.karim.gdmr_backend.profileissue.adapter.in.web.dto.ReportProfileIssueRequest;
 import com.karim.gdmr_backend.profileissue.application.ProfileIssueService;
+import io.swagger.v3.oas.annotations.tags.Tag;
 import jakarta.validation.Valid;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
@@ -14,6 +15,7 @@ import java.util.Map;
 
 @RestController
 @RequestMapping("/api/profile-issues")
+@Tag(name = "Profile Issues", description = "Reporting and resolving profile data issues")
 public class ProfileIssueController {
 
     private final ProfileIssueService profileIssueService;

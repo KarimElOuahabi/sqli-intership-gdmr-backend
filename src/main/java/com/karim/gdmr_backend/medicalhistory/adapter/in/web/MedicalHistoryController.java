@@ -6,6 +6,7 @@ import com.karim.gdmr_backend.medicalhistory.adapter.in.web.dto.AddMedicalHistor
 import com.karim.gdmr_backend.medicalhistory.adapter.in.web.dto.MedicalHistoryEntryResponse;
 import com.karim.gdmr_backend.medicalhistory.domain.port.in.AddMedicalHistoryEntryUseCase;
 import com.karim.gdmr_backend.medicalhistory.domain.port.in.ListMedicalHistoryUseCase;
+import io.swagger.v3.oas.annotations.tags.Tag;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.Authentication;
 import org.springframework.web.bind.annotation.*;
@@ -14,6 +15,7 @@ import java.util.List;
 
 @RestController
 @RequestMapping("/api/medical-history")
+@Tag(name = "Medical History", description = "Doctor-only medical history entries per employee")
 public class MedicalHistoryController {
 
     private final AddMedicalHistoryEntryUseCase addMedicalHistoryEntryUseCase;

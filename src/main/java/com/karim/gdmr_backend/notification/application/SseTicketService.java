@@ -1,44 +1,41 @@
 package com.karim.gdmr_backend.notification.application;
 
+import org.springframework.data.redis.core.StringRedisTemplate;
 import org.springframework.stereotype.Component;
 
-import java.time.Instant;
-import java.util.Map;
+import java.time.Duration;
 import java.util.Optional;
 import java.util.UUID;
-import java.util.concurrent.ConcurrentHashMap;
 
 /**
  * Short-lived, single-use tickets that let an EventSource (which can't send an
  * Authorization header) authenticate the SSE stream without ever putting the real
  * JWT in a URL/log. Issued via a normal Bearer-authenticated call, consumed once.
+ *
+ * Backed by Redis rather than a local map: behind a load balancer, the "get a ticket"
+ * call and the "open the stream" call can land on different instances, so the ticket
+ * has to be visible to whichever instance ends up consuming it.
  */
 @Component
 public class SseTicketService {
 
-    private static final long TICKET_TTL_SECONDS = 30;
+    private static final Duration TICKET_TTL = Duration.ofSeconds(30);
+    private static final String KEY_PREFIX = "sse-ticket:";
 
-    private record TicketEntry(Long userId, Instant expiresAt) {}
+    private final StringRedisTemplate redisTemplate;
 
-    private final Map<String, TicketEntry> tickets = new ConcurrentHashMap<>();
+    public SseTicketService(StringRedisTemplate redisTemplate) {
+        this.redisTemplate = redisTemplate;
+    }
 
     public String issueTicket(Long userId) {
-        purgeExpired();
         String ticket = UUID.randomUUID().toString();
-        tickets.put(ticket, new TicketEntry(userId, Instant.now().plusSeconds(TICKET_TTL_SECONDS)));
+        redisTemplate.opsForValue().set(KEY_PREFIX + ticket, userId.toString(), TICKET_TTL);
         return ticket;
     }
 
     public Optional<Long> consumeTicket(String ticket) {
-        TicketEntry entry = tickets.remove(ticket);
-        if (entry == null || entry.expiresAt().isBefore(Instant.now())) {
-            return Optional.empty();
-        }
-        return Optional.of(entry.userId());
-    }
-
-    private void purgeExpired() {
-        Instant now = Instant.now();
-        tickets.entrySet().removeIf(e -> e.getValue().expiresAt().isBefore(now));
+        String userId = redisTemplate.opsForValue().getAndDelete(KEY_PREFIX + ticket);
+        return Optional.ofNullable(userId).map(Long::valueOf);
     }
 }

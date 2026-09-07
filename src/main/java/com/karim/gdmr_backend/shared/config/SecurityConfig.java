@@ -36,6 +36,12 @@ public class SecurityConfig {
                                 response.sendError(HttpStatus.UNAUTHORIZED.value(), "Unauthorized"))
                 )
                 .authorizeHttpRequests(auth -> auth
+                        // Account creation accepts an arbitrary role in the request body, so it
+                        // must never be reachable anonymously — every account in this app is
+                        // provisioned by an Admin via /api/admin/users; this endpoint is unused
+                        // by the frontend but was still live and public, letting anyone self-
+                        // register as ADMIN. Locked to ADMIN, ahead of the /api/auth/** permitAll.
+                        .requestMatchers(HttpMethod.POST, "/api/auth/register").hasRole("ADMIN")
                         .requestMatchers("/api/auth/**").permitAll()
                         .requestMatchers(HttpMethod.GET, "/api/admin/users").hasAnyRole("ADMIN", "HR")
                         .requestMatchers("/api/admin/**").hasRole("ADMIN")
@@ -77,6 +83,7 @@ public class SecurityConfig {
                         .requestMatchers("/api/medical-history/**").hasRole("DOCTOR")
                         .requestMatchers(HttpMethod.GET, "/api/notifications/stream").permitAll()
                         .requestMatchers("/api/notifications/**").hasAnyRole("ADMIN", "HR", "DOCTOR", "EMPLOYEE")
+                        .requestMatchers("/v3/api-docs/**", "/swagger-ui/**", "/swagger-ui.html").permitAll()
 
                         .anyRequest().authenticated()
                 )

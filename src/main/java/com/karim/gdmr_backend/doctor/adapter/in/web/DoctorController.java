@@ -16,6 +16,7 @@ import com.karim.gdmr_backend.doctor.domain.port.in.GetMyProfileUseCase;
 import com.karim.gdmr_backend.doctor.domain.port.in.ListDoctorsUseCase;
 import com.karim.gdmr_backend.doctor.domain.port.in.UpsertDoctorUseCase;
 import com.karim.gdmr_backend.shared.security.AuthenticatedUser;
+import io.swagger.v3.oas.annotations.tags.Tag;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
@@ -27,6 +28,7 @@ import java.util.Map;
 import java.util.stream.Collectors;
 
 @RestController
+@Tag(name = "Doctors", description = "Doctor profiles and listing")
 public class DoctorController {
 
     private final GetMyProfileUseCase getMyProfileUseCase;

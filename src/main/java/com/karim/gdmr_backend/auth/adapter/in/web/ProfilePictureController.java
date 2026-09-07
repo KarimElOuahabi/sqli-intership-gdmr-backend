@@ -6,6 +6,7 @@ import com.karim.gdmr_backend.auth.domain.model.UserPrincipal;
 import com.karim.gdmr_backend.auth.domain.port.in.DeleteProfilePictureUseCase;
 import com.karim.gdmr_backend.auth.domain.port.in.GetProfilePictureUseCase;
 import com.karim.gdmr_backend.auth.domain.port.in.UpdateProfilePictureUseCase;
+import io.swagger.v3.oas.annotations.tags.Tag;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
@@ -14,6 +15,7 @@ import org.springframework.web.multipart.MultipartFile;
 
 @RestController
 @RequestMapping("/api/users")
+@Tag(name = "Auth", description = "Login, registration, token refresh, logout, current user")
 public class ProfilePictureController {
 
     private final UpdateProfilePictureUseCase updateProfilePictureUseCase;

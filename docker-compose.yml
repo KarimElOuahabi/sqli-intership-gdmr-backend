@@ -12,5 +12,56 @@ services:
     volumes:
       - gdmr_pg_data:/var/lib/postgresql/data
 
+  redis:
+    image: redis:7-alpine
+    container_name: gdmr-redis
+    restart: unless-stopped
+    ports:
+      - "6379:6379"
+
+  # --- Two instances of the same backend image, to test load balancing + the
+  # Redis pub/sub notification fix locally. Each also gets its own direct host
+  # port (8082/8083) so you can deliberately target one instance instead of
+  # letting nginx (8081) pick — useful only for manual testing, not real load balancing. ---
+  backend1:
+    build: .
+    container_name: gdmr-backend-1
+    restart: unless-stopped
+    environment:
+      DB_URL: jdbc:postgresql://postgres:5432/gdmr_db
+      REDIS_HOST: redis
+      REDIS_PORT: 6379
+    depends_on:
+      - postgres
+      - redis
+    ports:
+      - "8082:8080"
+
+  backend2:
+    build: .
+    container_name: gdmr-backend-2
+    restart: unless-stopped
+    environment:
+      DB_URL: jdbc:postgresql://postgres:5432/gdmr_db
+      REDIS_HOST: redis
+      REDIS_PORT: 6379
+    depends_on:
+      - postgres
+      - redis
+    ports:
+      - "8083:8080"
+
+  nginx:
+    image: nginx:alpine
+    container_name: gdmr-nginx
+    restart: unless-stopped
+    ports:
+      - "8081:80"
+    volumes:
+      - ./nginx.conf:/etc/nginx/nginx.conf:ro
+    depends_on:
+      - backend1
+      - backend2
+
 volumes:
   gdmr_pg_data:

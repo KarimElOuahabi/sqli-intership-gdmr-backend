@@ -9,6 +9,7 @@ import com.karim.gdmr_backend.notification.domain.model.NotificationType;
 import com.karim.gdmr_backend.notification.domain.port.in.CountUnreadNotificationsUseCase;
 import com.karim.gdmr_backend.notification.domain.port.in.ListNotificationsUseCase;
 import com.karim.gdmr_backend.notification.domain.port.in.MarkNotificationReadUseCase;
+import io.swagger.v3.oas.annotations.tags.Tag;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.Authentication;
 import org.springframework.web.bind.annotation.*;
@@ -18,6 +19,7 @@ import java.util.Map;
 
 @RestController
 @RequestMapping("/api/notifications")
+@Tag(name = "Notifications", description = "Live and REST notification delivery: list, unread count, mark read, SSE stream")
 public class NotificationController {
 
     private final ListNotificationsUseCase listNotificationsUseCase;

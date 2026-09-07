@@ -23,6 +23,7 @@ import org.springframework.web.bind.annotation.*;
 import com.karim.gdmr_backend.employee.domain.port.in.GetEmployeeByIdUseCase;
 import com.karim.gdmr_backend.doctor.domain.port.in.GetDoctorIdByUserIdUseCase;
 import com.karim.gdmr_backend.visit.domain.port.in.GetPatientEmployeeIdsUseCase;
+import io.swagger.v3.oas.annotations.tags.Tag;
 
 
 import java.util.List;
@@ -30,6 +31,7 @@ import java.util.Map;
 import java.util.stream.Collectors;
 
 @RestController
+@Tag(name = "Employees", description = "Employee profiles and listing")
 public class EmployeeController {
 
     private final GetMyProfileUseCase getMyProfileUseCase;

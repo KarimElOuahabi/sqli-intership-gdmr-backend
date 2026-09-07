@@ -12,6 +12,7 @@ import com.karim.gdmr_backend.notification.domain.port.in.DeleteUserNotification
 import com.karim.gdmr_backend.profileissue.domain.port.in.DeleteUserProfileIssuesUseCase;
 import com.karim.gdmr_backend.staff.domain.port.in.DeleteStaffProfileByUserIdUseCase;
 import com.karim.gdmr_backend.staff.domain.port.in.UpdateMyStaffProfileUseCase;
+import io.swagger.v3.oas.annotations.tags.Tag;
 import jakarta.validation.Valid;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
@@ -24,6 +25,7 @@ import org.springframework.transaction.annotation.Transactional;
 
 @RestController
 @RequestMapping("/api/admin/users")
+@Tag(name = "Admin Users", description = "Admin user management: create, list, update, delete")
 public class AdminUserController {
 
     private final CreateUserByAdminUseCase createUserByAdminUseCase;

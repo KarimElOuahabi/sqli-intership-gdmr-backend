@@ -14,8 +14,6 @@ import com.karim.gdmr_backend.notification.domain.port.out.NotificationRepositor
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
-import java.time.LocalDateTime;
-
 @Service
 @Transactional
 public class NotificationService implements
@@ -26,12 +24,12 @@ public class NotificationService implements
         DeleteUserNotificationsUseCase {
 
     private final NotificationRepositoryPort notificationRepository;
-    private final SseEmitterRegistry sseEmitterRegistry;
+    private final NotificationPublisher notificationPublisher;
 
     public NotificationService(NotificationRepositoryPort notificationRepository,
-                                SseEmitterRegistry sseEmitterRegistry) {
+                                NotificationPublisher notificationPublisher) {
         this.notificationRepository = notificationRepository;
-        this.sseEmitterRegistry = sseEmitterRegistry;
+        this.notificationPublisher = notificationPublisher;
     }
 
     @Override
@@ -40,7 +38,7 @@ public class NotificationService implements
                 command.recipientUserId(), command.type(), command.title(),
                 command.message(), command.relatedVisitId(), command.relatedUserId()));
 
-        sseEmitterRegistry.push(notification.getRecipientUserId(), SsePayload.from(notification));
+        notificationPublisher.publish(NotificationPushMessage.from(notification));
 
         return notification;
     }
@@ -86,15 +84,5 @@ public class NotificationService implements
     @Override
     public void deleteForUser(Long userId) {
         notificationRepository.deleteAllForUser(userId);
-    }
-
-    /** What actually goes out over SSE — just enough for the client to update its badge/list. */
-    private record SsePayload(
-            Long id, NotificationType type, String title, String message,
-            Long relatedVisitId, Long relatedUserId, boolean read, LocalDateTime createdAt) {
-        static SsePayload from(Notification n) {
-            return new SsePayload(n.getId(), n.getType(), n.getTitle(), n.getMessage(),
-                    n.getRelatedVisitId(), n.getRelatedUserId(), n.isRead(), n.getCreatedAt());
-        }
     }
 }

@@ -8,11 +8,13 @@ import com.karim.gdmr_backend.timeslot.domain.model.TimeSlot;
 import com.karim.gdmr_backend.timeslot.domain.port.in.CreateTimeSlotUseCase;
 import com.karim.gdmr_backend.timeslot.domain.port.in.ListTimeSlotsUseCase;
 import com.karim.gdmr_backend.visit.domain.model.VisitType;
+import io.swagger.v3.oas.annotations.tags.Tag;
 import jakarta.validation.Valid;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
 @RestController
+@Tag(name = "Time Slots", description = "Doctor availability slot creation and listing")
 public class TimeSlotController {
 
     private final CreateTimeSlotUseCase createTimeSlotUseCase;

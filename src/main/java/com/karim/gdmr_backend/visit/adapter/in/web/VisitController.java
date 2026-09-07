@@ -15,12 +15,14 @@ import com.karim.gdmr_backend.visit.domain.exception.UnauthorizedVisitAccessExce
 import com.karim.gdmr_backend.visit.domain.model.Visit;
 import com.karim.gdmr_backend.visit.domain.model.VisitStatus;
 import com.karim.gdmr_backend.visit.domain.port.in.*;
+import io.swagger.v3.oas.annotations.tags.Tag;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.Authentication;
 import org.springframework.web.bind.annotation.*;
 
 @RestController
 @RequestMapping("/api/visits")
+@Tag(name = "Visits", description = "Visit negotiation flow: request, propose, confirm, reject, schedule")
 public class VisitController {
 
     private final RequestSpontaneousVisitUseCase requestSpontaneousVisitUseCase;

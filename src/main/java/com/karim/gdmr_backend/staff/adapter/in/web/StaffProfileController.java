@@ -8,12 +8,14 @@ import com.karim.gdmr_backend.staff.adapter.in.web.dto.UpdateStaffProfileRequest
 import com.karim.gdmr_backend.staff.domain.model.StaffProfile;
 import com.karim.gdmr_backend.staff.domain.port.in.GetMyStaffProfileUseCase;
 import com.karim.gdmr_backend.staff.domain.port.in.UpdateMyStaffProfileUseCase;
+import io.swagger.v3.oas.annotations.tags.Tag;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.web.bind.annotation.*;
 
 @RestController
 @RequestMapping("/api/staff/profile")
+@Tag(name = "Staff Profile", description = "HR/Doctor staff profile management")
 public class StaffProfileController {
 
     private final GetMyStaffProfileUseCase getMyStaffProfileUseCase;

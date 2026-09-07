@@ -8,6 +8,7 @@ import com.karim.gdmr_backend.auth.domain.model.UserPrincipal;
 import com.karim.gdmr_backend.auth.domain.port.in.*;
 import com.karim.gdmr_backend.auth.domain.port.out.UserRepositoryPort;
 import com.karim.gdmr_backend.shared.security.AuthenticatedUser;
+import io.swagger.v3.oas.annotations.tags.Tag;
 import jakarta.validation.Valid;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.http.HttpHeaders;
@@ -20,6 +21,7 @@ import java.time.Duration;
 
 @RestController
 @RequestMapping("/api/auth")
+@Tag(name = "Auth", description = "Login, registration, token refresh, logout, current user")
 public class AuthController {
 
     private final RegisterUserUseCase registerUserUseCase;

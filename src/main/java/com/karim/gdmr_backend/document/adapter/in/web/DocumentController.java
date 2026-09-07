@@ -9,6 +9,7 @@ import com.karim.gdmr_backend.document.domain.port.in.ListEmployeeDocumentsUseCa
 import com.karim.gdmr_backend.document.domain.port.in.UploadDocumentUseCase;
 import com.karim.gdmr_backend.employee.domain.port.in.GetEmployeeIdByUserIdUseCase;
 import com.karim.gdmr_backend.auth.domain.model.UserPrincipal;
+import io.swagger.v3.oas.annotations.tags.Tag;
 import org.springframework.core.io.ByteArrayResource;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.MediaType;
@@ -21,6 +22,7 @@ import java.util.List;
 
 @RestController
 @RequestMapping("/api/documents")
+@Tag(name = "Documents", description = "Medical document upload, download, listing, deletion")
 public class DocumentController {
 
     private final UploadDocumentUseCase uploadDocumentUseCase;

@@ -3,6 +3,7 @@ package com.karim.gdmr_backend.notification.adapter.in.web;
 import com.karim.gdmr_backend.auth.domain.model.UserPrincipal;
 import com.karim.gdmr_backend.notification.application.SseEmitterRegistry;
 import com.karim.gdmr_backend.notification.application.SseTicketService;
+import io.swagger.v3.oas.annotations.tags.Tag;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.Authentication;
@@ -13,6 +14,7 @@ import java.util.Map;
 
 @RestController
 @RequestMapping("/api/notifications")
+@Tag(name = "Notifications", description = "Live and REST notification delivery: list, unread count, mark read, SSE stream")
 public class NotificationStreamController {
 
     private final SseTicketService sseTicketService;
